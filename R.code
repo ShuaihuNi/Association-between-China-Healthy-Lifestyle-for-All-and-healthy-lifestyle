@@ -1,0 +1,127 @@
+library(ordinal)
+library(sandwich)
+library(lmtest)
+library(forestplot) 
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(stringr)
+df_main<- read.csv(file.choose())          #data
+df_main$Lifestyle <- factor(df_main$Lifestyle, ordered = TRUE)
+df_main$Phase<-factor(df_main$Phase)
+df_main$Age<-factor(df_main$Age)
+df_main$Sex<-factor(df_main$Sex)
+df_main$Ethnicity<-factor(df_main$Ethnicity)
+df_main$Occupation<-factor(df_main$Occupation)
+df_main$Resident<-factor(df_main$Resident)
+df_main$Income<-factor(df_main$Income)
+df_main$SDH<-factor(df_main$SDH)
+df_main$Baseline<-factor(df_main$Baseline)
+df_main$id<-factor(df_main$id)
+model_main <- clm(
+  Lifestyle ~ Phase + Age + Sex + Ethnicity + Occupation +
+             Resident + Income + SDH + Baseline,
+  data = df_main, link = "logit")
+vcov_main <- vcovCL(model_main, cluster = ~id, data = df_main)
+summary(model_main)
+
+df<- read.csv(file.choose())          #data-mixed effect
+colnames(df) <- c("Characteristics", "OR_CI", "Pvalue")
+df <- df %>%
+  mutate(
+    is_ref = (OR_CI == "Reference") | is.na(OR_CI),
+    OR_num = ifelse(is_ref, NA,
+                    as.numeric(sub("^([0-9\\.]+)\\(.*\\)$", "\\1", OR_CI))),
+    lower = ifelse(is_ref, NA,
+                   as.numeric(sub(".*\\(([0-9\\.]+)-([0-9\\.]+)\\)", "\\1", OR_CI))),
+    upper = ifelse(is_ref, NA,
+                   as.numeric(sub(".*\\(([0-9\\.]+)-([0-9\\.]+)\\)", "\\2", OR_CI)))
+  )
+
+group_titles <- c("Phase", "Sex", "Ethnicity", "Age", "Occupation", 
+                  "Resident", "Primary income source", 
+                  "Numbers of SDH factors", "Baseline chronic disease count")
+df$display_name <- ifelse(df$Characteristics %in% group_titles,
+                          df$Characteristics,
+                          paste0("  ", df$Characteristics))
+df$is_summary <- df$Characteristics %in% group_titles
+labeltext <- cbind(
+  c("Characteristics", df$display_name),
+  c("OR (95% CI)", ifelse(df$is_ref, "Reference", df$OR_CI)),
+  c("P value", ifelse(df$is_ref, "", df$Pvalue))
+)
+is_summary_vec <- c(FALSE, df$is_summary)
+mean_vec <- c(NA, df$OR_num)
+lower_vec <- c(NA, df$lower)
+upper_vec <- c(NA, df$upper)
+png("forest_plot_fixed.png", width = 10, height = 12, units = "in", res = 300)
+forestplot(labeltext,
+           mean = mean_vec,
+           lower = lower_vec,
+           upper = upper_vec,
+           zero = 1,
+           boxsize = 0.2,
+           xlab = "OR (95% CI)",
+           is.summary = is_summary_vec,
+           col = fpColors(box = "darkblue", line = "darkblue", summary = "royalblue"))
+dev.off()
+
+data<-read.csv(file.choose())       #data-Baseline chronic disease count
+data$Baseline.chronic.disease.count <- factor(data$ Baseline.chronic.disease.count, 
+                             levels = c("0", "1", "≥2"),
+                             labels = c("0 chronic disease", 
+                                        "1 chronic disease", 
+                                        "≥2 chronic diseases"))
+data$phase <- factor(data$Phase, 
+                     levels = c("Phase I", "Phase II"),
+                     labels = c("Phase I (2008-2016)", "Phase II (2017-2019)"))
+
+p <- ggplot(data, aes(x = Baseline.chronic.disease.count, y = OR, fill = Phase)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +  
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                position = position_dodge(width = 0.7), width = 0.2) + 
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray30") +  
+  scale_fill_manual(values = c( "#BBFFFF","#1E90FF"),
+                    labels = c("Phase I", "Phase II")) +  
+  labs(x = "Baseline chronic disease count",
+       y = "Odds ratio (95% CI) for healthy lifestyle score") +          
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+  
+  theme_classic(base_size = 12) +
+  theme(legend.position = "bottom",
+        panel.background = element_rect(fill = "white", color = NA),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.line = element_line(color = "black"),  
+        axis.text = element_text(color = "black"),
+        axis.title = element_text(face = "bold"))
+print(p)
+ggsave("Figure_effect_by_chronic.png", plot = p, width = 8, height = 5, dpi = 300)
+
+data<-read.csv(file.choose())         #data-Numbers of SDH factors
+data$Numbers.of.SDH.factors <- factor(data$Numbers.of.SDH.factors, 
+                         levels = c("0-1", "2-3", "4-5"),
+                         labels = c("0-1 SDH factors", 
+                                    "2-3 SDH factors", 
+                                    "4-5 SDH factors"))
+
+data$phase <- factor(data$Phase, 
+                     levels = c("Phase I", "Phase II"),
+                     labels = c("Phase I (2008-2016)", "Phase II (2017-2019)"))
+p <- ggplot(data, aes(x = Numbers.of.SDH.factors, y = OR, fill = Phase)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +   
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                position = position_dodge(width = 0.7), width = 0.2) + 
+  geom_hline(yintercept = 1, linetype = "dashed", color = "gray30") +  
+  scale_fill_manual(values = c( "#BBFFFF","#1E90FF"),
+                    labels = c("Phase I", "Phase II")) +  
+  labs(x = "Numbers of SDH factors",
+       y = "Odds ratio (95% CI) for healthy lifestyle score") +          
+  scale_y_continuous(expand = expansion(mult = c(0, 0.05)))+  
+  theme_classic(base_size = 12) +
+  theme(legend.position = "bottom",
+        panel.background = element_rect(fill = "white", color = NA),
+        plot.background = element_rect(fill = "white", color = NA),
+        axis.line = element_line(color = "black"),   
+        axis.text = element_text(color = "black"),
+        axis.title = element_text(face = "bold"))
+print(p)
+ggsave("Figure_SDH.png", plot = p, width = 8, height = 5, dpi = 300)
