@@ -1,4 +1,4 @@
-﻿id,Year,Phase,Lifestyle,Numbers of SDH factors,Age,Resident,Sex,Ethnicity,Occupation,Primary income source,Baseline chronic disease count
+﻿id,Year,Phase,Lifestyle,SDH,Age,Resident,Sex,Ethnicity,Occupation,Income,Baseline
 11010605,2005,0,1,1,1,1,2,1,2,1,0
 11013402,2005,0,0,2,4,3,1,1,4,3,0
 11014302,2005,0,1,1,3,3,1,1,4,3,2
