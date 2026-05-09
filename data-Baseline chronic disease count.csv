@@ -1,0 +1,7 @@
+﻿Baseline chronic disease count,Phase,OR,lower,upper,P
+0,Phase I,1.07,1.01,1.14,0.024
+0,Phase II,1.28,1.17,1.4,<0.001
+1,Phase I,1.13,1.03,1.25,0.01
+1,Phase II,1.41,1.25,1.59,<0.001
+≥2,Phase I,1.26,1.08,1.46,0.004
+≥2,Phase II,1.71,1.46,2.02,<0.001

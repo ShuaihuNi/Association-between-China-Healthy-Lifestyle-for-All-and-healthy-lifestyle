@@ -1,0 +1,39 @@
+﻿Characteristics,OR(95% CI),P value
+Phase,,
+    The pre-implementation phase,Reference,
+    Phase I,1.105(1.053-1.158),<0.001
+    Phase II,1.378(1.292-1.469),<0.001
+Sex,,
+    Male,Reference,
+    Female,2.469(2.337-2.607),<0.001
+Ethnicity,,
+    Han,Reference,
+    Other,1.212(1.102-1.333),<0.001
+Age,,
+    65-74,Reference,
+    75-84,0.788(0.738-0.842),<0.001
+    85-94,0.520(0.486-0.557),<0.001
+    95-,0.360(0.335-0.387),<0.001
+Occupation,,
+    Employee,Reference,
+    Agricultural Worker,0.913(0.830-1.005),0.062
+    Housework,0.892(0.795-1.000),0.05
+    Other,1.143(1.043-1.253),0.004
+Resident,,
+    Urban,Reference,
+    Town,0.646(0.602-0.694),<0.001
+    Rural,0.539(0.503-0.578),<0.001
+Primary income source,,
+    Pension,Reference,
+    Children,0.600(0.549-0.656),<0.001
+    Local government or community organizations,0.472(0.420-0.530),<0.001
+   Own labor or work,0.559(0.500-0.626),<0.001
+   Other,0.693(0.626-0.768),<0.001
+Numbers of SDH factors,,
+    0-1 ,Reference,
+    2-3,1.684(1.601-1.771),<0.001
+    4-5,2.146(1.895-2.430),<0.001
+Baseline chronic disease count,,
+0,Reference,
+1,0.988(0.938-1.041),0.646
+≥2,0.956(0.890-1.028),0.224
